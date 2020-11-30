@@ -7,7 +7,7 @@ from lianjia.items import LianjiaItem
 class LianjiaSpider(scrapy.Spider):     # 必须继承scrapy.Spider
 
     name = "lianjia"   # 名称
-    allowed_domains = ["sh.lianjia.com/zufang"]
+    allowed_domains = ["sh.lianjia.com"]
     start_urls = ['https://sh.lianjia.com/zufang']   # URL列表
 
     def parse(self, response):
@@ -22,7 +22,9 @@ class LianjiaSpider(scrapy.Spider):     # 必须继承scrapy.Spider
         house_num = int(response.css('#content > div.content__article > p > span.content__title--hl::text').get())  # 房子数量
         page_num = min(house_num // 30 + 1, 100)    # 每页展示30条
         for i in range(1, page_num + 1):
+            time.sleep(0.1)
             url = response.url + 'pg{}'.format(i)
+            print(url)
             yield Request(url, callback=self.parse_overview)
 
     # 爬取房屋概况信息
@@ -68,5 +70,5 @@ class LianjiaSpider(scrapy.Spider):     # 必须继承scrapy.Spider
             item['description'] = ''.join([x.strip() for x in response.css('#desc > p:nth-child(3)::text').getall()])
             yield item   # 返回数据
         except AttributeError as e:
+            time.sleep(600)
             print(e)
-            time.sleep(60)
