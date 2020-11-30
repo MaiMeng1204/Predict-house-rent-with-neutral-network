@@ -7,7 +7,6 @@ import scrapy
 
 
 class LianjiaItem(scrapy.Item):
-    region = scrapy.Field()     # 区
     title = scrapy.Field()  # 标题
     location = scrapy.Field()  # 地点
     house_type = scrapy.Field()  # 房屋类型

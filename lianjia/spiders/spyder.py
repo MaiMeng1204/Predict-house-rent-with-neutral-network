@@ -7,8 +7,11 @@ from lianjia.items import LianjiaItem
 class LianjiaSpider(scrapy.Spider):     # 必须继承scrapy.Spider
 
     name = "lianjia"   # 名称
-    allowed_domains = ["sh.lianjia.com"]
     start_urls = ['https://sh.lianjia.com/zufang']   # URL列表
+
+    def __init__(self):
+        self.url_num = 0
+        self.apartment_num = 0
 
     def parse(self, response):
         # 获取各个区的url
@@ -29,18 +32,22 @@ class LianjiaSpider(scrapy.Spider):     # 必须继承scrapy.Spider
 
     # 爬取房屋概况信息
     def parse_overview(self, response):
-        item = LianjiaItem()
         infos = response.css('div.content__list--item')
         for info in infos:
-            time.sleep(0.1)
             suburl = info.css('.content__list--item--aside').attrib['href']
             if 'zufang' in suburl:
+                item = LianjiaItem()
                 item['title'] = info.css('.content__list--item--aside').attrib['title']
                 item['location'] = '-'.join(info.css('.content__list--item--des a::text').getall())
                 des = info.css('.content__list--item--des::text').getall()
                 item['house_type'] = [x.strip() for x in des if '室' in x][0]
                 url = 'https://sh.lianjia.com' + suburl
+                self.url_num += 1
+                print('url_num: ', self.url_num)
                 yield Request(url, meta={'item': item}, callback=self.parse_info)
+            else:
+                self.apartment_num += 1
+                print('apartment_num: ', self.apartment_num)
 
     # 爬取房屋详细信息
     def parse_info(self, response):
@@ -70,5 +77,5 @@ class LianjiaSpider(scrapy.Spider):     # 必须继承scrapy.Spider
             item['description'] = ''.join([x.strip() for x in response.css('#desc > p:nth-child(3)::text').getall()])
             yield item   # 返回数据
         except AttributeError as e:
-            time.sleep(600)
             print(e)
+            time.sleep(5)
