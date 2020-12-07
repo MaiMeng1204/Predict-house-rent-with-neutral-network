@@ -12,7 +12,7 @@ from itemadapter import ItemAdapter
 
 class LianjiaPipeline:
     def open_spider(self, spider):
-        self.file = open('lianjia.json', 'w', encoding='utf-8')
+        self.file = open('lianjia.json', 'a', encoding='utf-8')
 
     def close_spider(self, spider):
         self.file.close()
